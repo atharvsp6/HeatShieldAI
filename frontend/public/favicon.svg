@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF512F" />
+      <stop offset="100%" stop-color="#DD2476" />
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#FF8C00" />
+    </linearGradient>
+  </defs>
+  <!-- Shield outline/base -->
+  <path d="M50 5 L10 20 L10 50 C10 75 40 90 50 95 C60 90 90 75 90 50 L90 20 Z" fill="url(#shieldGrad)" />
+  <!-- Inner Flame -->
+  <path d="M50 25 C30 45 35 60 40 70 C45 60 50 55 50 55 C50 55 55 60 60 70 C65 60 70 45 50 25 Z" fill="url(#flameGrad)" />
+</svg>

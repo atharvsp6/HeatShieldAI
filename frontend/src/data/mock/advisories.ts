@@ -1,0 +1,58 @@
+import type { Advisory } from "../../types";
+
+export const advisories: Advisory[] = [
+  {
+    id: "ADV-501",
+    audience: "CITIZENS",
+    severity: "severe",
+    region: "Delhi NCR",
+    generated: "2 min ago",
+    status: "pending",
+    text: "SEVERE HEAT WARNING for Delhi NCR. Maximum temperatures are expected to reach 46°C. Avoid outdoor exposure between 11 AM and 4 PM. Drink water regularly even if not thirsty, wear light cotton clothing, and check on elderly neighbours and children. Cooling centres are open at all district community halls.",
+  },
+  {
+    id: "ADV-500",
+    audience: "HEALTHCARE",
+    severity: "severe",
+    region: "Delhi NCR",
+    generated: "8 min ago",
+    status: "approved",
+    text: "District hospitals to activate heat-illness protocols. Ensure ORS and IV-fluid stocks, designate cooling beds in emergency wards, and brief staff on heat-stroke triage. Expect a 20–30% rise in heat-related admissions over the next 72 hours.",
+  },
+  {
+    id: "ADV-499",
+    audience: "AUTHORITIES",
+    severity: "heatwave",
+    region: "Jaipur",
+    generated: "22 min ago",
+    status: "pending",
+    text: "Municipal authorities are advised to extend public water-kiosk hours, adjust outdoor labour schedules for civic workers, and ensure uninterrupted power supply to hospitals and cold-storage facilities. Coordinate cooling-shelter capacity with NGOs.",
+  },
+  {
+    id: "ADV-498",
+    audience: "FARMERS",
+    severity: "heatwave",
+    region: "Nagpur",
+    generated: "41 min ago",
+    status: "approved",
+    text: "Advisory for agricultural communities: irrigate crops during early morning or late evening to reduce evaporation loss. Provide shade and ample water for livestock. Postpone transplanting and spraying operations until the heatwave subsides.",
+  },
+  {
+    id: "ADV-497",
+    audience: "CITIZENS",
+    severity: "heatwave",
+    region: "Ahmedabad",
+    generated: "1 hr ago",
+    status: "approved",
+    text: "Heatwave advisory for Ahmedabad. Stay indoors during peak afternoon hours and keep hydrated. Recognise heat-exhaustion symptoms — dizziness, nausea, rapid heartbeat — and move to a cool place immediately if they occur.",
+  },
+  {
+    id: "ADV-495",
+    audience: "AUTHORITIES",
+    severity: "watch",
+    region: "Pune",
+    generated: "3 hr ago",
+    status: "rejected",
+    text: "Preparatory watch advisory for Pune district. Review heat-action-plan readiness and pre-position resources. Rejected pending updated forecast confidence above the 80% threshold.",
+  },
+];
