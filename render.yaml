@@ -2,6 +2,7 @@ services:
   - type: web
     name: heatshield-backend
     env: python
+    plan: free
     repo: https://github.com/atharvsp6/HeatShieldAI.git
     branch: main
     rootDir: backend
