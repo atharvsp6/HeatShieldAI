@@ -16,11 +16,24 @@ from seed import seed_database
 
 settings = get_settings()
 
+from fastapi.responses import JSONResponse
+import traceback
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="AI-powered Heatwave Intelligence and Early Warning Platform",
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+    )
+
 
 # CORS
 origins = [

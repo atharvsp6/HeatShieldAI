@@ -3,6 +3,14 @@ Authentication service - handles password hashing and JWT token management.
 """
 from datetime import datetime, timedelta
 from typing import Optional
+import bcrypt
+
+# Compatibility fix: passlib 1.7.4 expects bcrypt.__about__.__version__ which was removed in bcrypt >= 4.1.0
+if not hasattr(bcrypt, "__about__"):
+    class _About:
+        __version__ = getattr(bcrypt, "__version__", "4.0.1")
+    bcrypt.__about__ = _About()
+
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
