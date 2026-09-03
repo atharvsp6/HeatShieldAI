@@ -23,9 +23,25 @@ app = FastAPI(
 )
 
 # CORS
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8443",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8443",
+    "https://heatshield.atharvpatil.me",
+    "https://atharvpatil.me",
+]
+if settings.FRONTEND_URL:
+    for u in settings.FRONTEND_URL.split(","):
+        clean_u = u.strip().rstrip("/")
+        if clean_u and clean_u not in origins:
+            origins.append(clean_u)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:5173", "http://localhost:3000"],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*(atharvpatil\.me|vercel\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
