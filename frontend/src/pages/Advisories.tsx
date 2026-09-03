@@ -47,8 +47,7 @@ export default function Advisories() {
           await api.generateAdvisories(ad.region, ad.severity, regionInfo.temp);
         }
       } else if (status === "rejected") {
-        setOverrides((o) => ({ ...o, [id]: status }));
-        return; // Don't reload, just override locally
+        await api.rejectAdvisory(id);
       }
       reload();
     } catch (e) {

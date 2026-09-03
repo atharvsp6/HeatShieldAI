@@ -11,17 +11,22 @@ from database import get_db
 from models.models import (
     Region, WeatherStation, Observation, Forecast,
     HeatwaveEvent, Alert, Advisory, ValidationResult, AuditLog,
+    UserSettings, User,
 )
 from schemas.schemas import (
     ForecastResponse, ForecastGenerateRequest,
     HeatwaveEventResponse, AlertCreate, AlertResponse,
     AdvisoryGenerateRequest, AdvisoryResponse,
     ValidationResponse, DashboardResponse, AuditLogResponse,
+    WeatherIngestResponse, MLTrainResponse,
+    UserSettingsResponse, UserSettingsUpdate,
 )
-from services.forecast_service import predict_temperature
+from services.forecast_service import predict_temperature, train_model, get_model_metadata
 from services.heatwave_classifier import classify_heatwave
 from services.advisory_service import generate_all_advisories
+from services.weather_service import ingest_weather_data
 from services.audit_service import log_action
+from services.auth_deps import get_current_user
 
 router = APIRouter(prefix="/api", tags=["Core"])
 
@@ -222,9 +227,12 @@ def get_advisories(audience: Optional[str] = None, db: Session = Depends(get_db)
 
 @router.post("/advisories/generate", response_model=List[AdvisoryResponse])
 def generate_advisories(request: AdvisoryGenerateRequest, db: Session = Depends(get_db)):
-    """Generate advisories for a region."""
+    """Generate advisories for a region using LLM or deterministic templates."""
+    region = db.query(Region).filter(Region.name.ilike(request.region_name)).first()
+    normal_temp = region.normal_temp if region else 35.0
+
     advisories_data = generate_all_advisories(
-        request.region_name, request.severity, request.temperature
+        request.region_name, request.severity, request.temperature, normal_temp=normal_temp
     )
     result = []
     for adv_data in advisories_data:
@@ -235,6 +243,7 @@ def generate_advisories(request: AdvisoryGenerateRequest, db: Session = Depends(
             title=adv_data["title"],
             content=adv_data["content"],
             status="DRAFT",
+            generated_by=adv_data.get("generated_by", "TEMPLATE"),
         )
         db.add(advisory)
         db.flush()
@@ -248,19 +257,38 @@ def generate_advisories(request: AdvisoryGenerateRequest, db: Session = Depends(
 
 @router.post("/advisories/{advisory_id}/approve", response_model=AdvisoryResponse)
 def approve_advisory(advisory_id: int, db: Session = Depends(get_db)):
-    """Approve an advisory."""
+    """Approve an advisory for publication."""
     advisory = db.query(Advisory).filter(Advisory.id == advisory_id).first()
     if not advisory:
         raise HTTPException(status_code=404, detail="Advisory not found")
 
     advisory.status = "APPROVED"
     advisory.approved_at = datetime.utcnow()
-    advisory.approved_by = "Admin"
+    advisory.approved_by = "Meteorologist Team"
     db.commit()
     db.refresh(advisory)
 
-    log_action(db, "admin", "APPROVE_ADVISORY", "advisory",
-               f"Approved advisory: {advisory.title}")
+    log_action(db, "user", "APPROVE_ADVISORY", "advisory",
+               f"Approved advisory #{advisory.id}: {advisory.title}")
+
+    return AdvisoryResponse.model_validate(advisory)
+
+
+@router.post("/advisories/{advisory_id}/reject", response_model=AdvisoryResponse)
+def reject_advisory(advisory_id: int, db: Session = Depends(get_db)):
+    """Reject an advisory and persist rejection status."""
+    advisory = db.query(Advisory).filter(Advisory.id == advisory_id).first()
+    if not advisory:
+        raise HTTPException(status_code=404, detail="Advisory not found")
+
+    advisory.status = "REJECTED"
+    advisory.rejected_at = datetime.utcnow()
+    advisory.rejected_by = "Reviewer"
+    db.commit()
+    db.refresh(advisory)
+
+    log_action(db, "user", "REJECT_ADVISORY", "advisory",
+               f"Rejected advisory #{advisory.id}: {advisory.title}")
 
     return AdvisoryResponse.model_validate(advisory)
 
@@ -411,3 +439,150 @@ def get_audit_logs(limit: int = 50, db: Session = Depends(get_db)):
     """Get audit logs."""
     logs = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).limit(limit).all()
     return [AuditLogResponse.model_validate(log) for log in logs]
+
+
+# ─── Weather Ingestion ────────────────────────────────────────────────────────
+
+@router.post("/weather/ingest", response_model=WeatherIngestResponse)
+def ingest_weather(mode: str = "current", db: Session = Depends(get_db)):
+    """
+    Ingest real weather data from Open-Meteo API.
+    Mode can be 'current' (latest reading) or 'recent' (past 3 days hourly).
+    Stores real observations in PostgreSQL with data_source='OPEN_METEO'.
+    Idempotent: skips already ingested observations.
+    """
+    stats = ingest_weather_data(db, mode=mode)
+    log_action(db, "system", "WEATHER_INGEST", "weather",
+               f"Ingested {stats['observations_inserted']} real observations from Open-Meteo")
+    return stats
+
+
+@router.get("/weather/status")
+def get_weather_status(db: Session = Depends(get_db)):
+    """Return counts and summary of real vs synthetic observations."""
+    real_count = db.query(Observation).filter(Observation.data_source == "OPEN_METEO").count()
+    synthetic_count = db.query(Observation).filter(Observation.data_source != "OPEN_METEO").count()
+    latest_real = (
+        db.query(Observation)
+        .filter(Observation.data_source == "OPEN_METEO")
+        .order_by(Observation.timestamp.desc())
+        .first()
+    )
+    return {
+        "real_observations_count": real_count,
+        "synthetic_observations_count": synthetic_count,
+        "total_observations": real_count + synthetic_count,
+        "latest_real_observation": latest_real.timestamp.isoformat() if latest_real else None,
+        "external_source": "Open-Meteo API",
+    }
+
+
+# ─── Machine Learning ─────────────────────────────────────────────────────────
+
+@router.post("/ml/train", response_model=MLTrainResponse)
+def train_ml_model(force_mode: Optional[str] = None, db: Session = Depends(get_db)):
+    """
+    Train or retrain the RandomForest forecasting model.
+    Checks for real observations in PostgreSQL first. If sufficient data exists,
+    trains strictly on real data. Otherwise trains in explicit synthetic_demo mode.
+    """
+    meta = train_model(db=db, force_mode=force_mode)
+    log_action(db, "system", "TRAIN_MODEL", "ml",
+               f"Retrained ML model: mode={meta['training_mode']}, test_R2={meta.get('test_r2')}")
+    return meta
+
+
+@router.get("/ml/status", response_model=MLTrainResponse)
+def get_ml_status():
+    """Get current ML model metadata and training mode."""
+    return get_model_metadata()
+
+
+# ─── User Settings ────────────────────────────────────────────────────────────
+
+@router.get("/settings", response_model=UserSettingsResponse)
+def get_user_settings(db: Session = Depends(get_db)):
+    """
+    Retrieve user settings from PostgreSQL.
+    Falls back to first user or default settings.
+    """
+    settings_record = db.query(UserSettings).first()
+    if not settings_record:
+        # Create default settings
+        first_user = db.query(User).first()
+        user_id = first_user.id if first_user else 1
+        settings_record = UserSettings(
+            user_id=user_id,
+            temp_unit="celsius",
+            notifications_enabled=True,
+            auto_refresh=True,
+            alert_threshold="HEATWAVE",
+            digest_email=False,
+            approval_required=True,
+        )
+        db.add(settings_record)
+        db.commit()
+        db.refresh(settings_record)
+    return settings_record
+
+
+@router.put("/settings", response_model=UserSettingsResponse)
+def update_user_settings(payload: UserSettingsUpdate, db: Session = Depends(get_db)):
+    """Update user settings in PostgreSQL."""
+    settings_record = db.query(UserSettings).first()
+    if not settings_record:
+        first_user = db.query(User).first()
+        user_id = first_user.id if first_user else 1
+        settings_record = UserSettings(user_id=user_id)
+        db.add(settings_record)
+
+    update_dict = payload.model_dump(exclude_unset=True)
+    for k, v in update_dict.items():
+        setattr(settings_record, k, v)
+
+    db.commit()
+    db.refresh(settings_record)
+    log_action(db, "user", "UPDATE_SETTINGS", "settings", "Updated user preferences")
+    return settings_record
+
+
+# ─── Data Source Transparency ─────────────────────────────────────────────────
+
+@router.get("/data/classification")
+def get_data_classification(db: Session = Depends(get_db)):
+    """
+    Comprehensive transparency audit endpoint classifying every data element
+    as REAL, SYNTHETIC, or MIXED with source attribution.
+    """
+    real_obs = db.query(Observation).filter(Observation.data_source == "OPEN_METEO").count()
+    meta = get_model_metadata()
+    return {
+        "weather_observations": {
+            "status": "MIXED" if real_obs > 0 else "SYNTHETIC",
+            "source": "Open-Meteo API (real) + Initial Demo Seeder (synthetic)",
+            "real_count": real_obs,
+        },
+        "weather_stations": {
+            "status": "SYNTHETIC_METADATA",
+            "source": "Simulated station coordinates mapped to real Indian cities (no AWS hardware)",
+            "hardware": "NO",
+        },
+        "ml_model": {
+            "status": "REAL_ALGORITHM",
+            "model_type": "RandomForestRegressor (scikit-learn)",
+            "training_mode": meta.get("training_mode", "synthetic_demo"),
+        },
+        "forecasts": {
+            "status": "REAL_PREDICTIONS",
+            "source": "Generated dynamically by trained RandomForest model using latest observation inputs",
+        },
+        "advisories": {
+            "status": "AI_GENERATED",
+            "source": "Groq LLM (llama-3.3-70b-versatile) with verified inputs + IMD template fallbacks",
+        },
+        "heatwave_detection": {
+            "status": "DETERMINISTIC_RULES",
+            "source": "IMD-aligned departure & absolute threshold rule engine",
+        },
+    }
+

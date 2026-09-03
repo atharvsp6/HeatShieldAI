@@ -44,6 +44,7 @@ class AlertStatus(str, enum.Enum):
 class AdvisoryStatus(str, enum.Enum):
     DRAFT = "DRAFT"
     APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
     PUBLISHED = "PUBLISHED"
 
 
@@ -111,6 +112,7 @@ class Observation(Base):
     humidity = Column(Float, nullable=False)
     wind_speed = Column(Float, nullable=True)
     timestamp = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    data_source = Column(String(30), nullable=False, default="SYNTHETIC")
 
     station = relationship("WeatherStation", back_populates="observations")
 
@@ -176,6 +178,9 @@ class Advisory(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     approved_at = Column(DateTime, nullable=True)
     approved_by = Column(String(100), nullable=True)
+    rejected_at = Column(DateTime, nullable=True)
+    rejected_by = Column(String(100), nullable=True)
+    generated_by = Column(String(30), nullable=True, default="TEMPLATE")
 
 
 class ValidationResult(Base):
@@ -201,3 +206,19 @@ class AuditLog(Base):
     detail = Column(Text, nullable=True)
     ip_address = Column(String(50), nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    temp_unit = Column(String(10), nullable=False, default="celsius")
+    notifications_enabled = Column(Boolean, default=True)
+    auto_refresh = Column(Boolean, default=True)
+    alert_threshold = Column(String(20), nullable=False, default="HEATWAVE")
+    digest_email = Column(Boolean, default=False)
+    approval_required = Column(Boolean, default=True)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")

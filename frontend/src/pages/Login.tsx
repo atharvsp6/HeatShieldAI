@@ -15,7 +15,7 @@ const roleProfiles: Record<Role, { name: string; role: Role; initials: string; u
 };
 
 const capabilities = [
-  { icon: Radar, title: "Live heatwave monitoring", desc: "20-station AWS network, updated in real time" },
+  { icon: Radar, title: "Live heatwave monitoring", desc: "Multi-station weather network, updated in real time" },
   { icon: BrainCircuit, title: "AI temperature forecasting", desc: "72-hour horizon at 94% validated accuracy" },
   { icon: Activity, title: "Action-ready early warnings", desc: "Advisories routed to the right stakeholders" },
 ];

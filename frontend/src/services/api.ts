@@ -132,7 +132,7 @@ export const api = {
       },
       {
         id: "stations",
-        label: "AWS Stations",
+        label: "Weather Stations",
         value: data.station_count.toString(),
         deltaTone: "neutral",
         sub: `${data.total_observations} total observations`,
@@ -410,6 +410,10 @@ export const api = {
     await fetchApi<any>(`/advisories/${id}/approve`, { method: "POST" });
   },
 
+  rejectAdvisory: async (id: string): Promise<void> => {
+    await fetchApi<any>(`/advisories/${id}/reject`, { method: "POST" });
+  },
+
   generateAdvisories: async (region_name: string, severity: string, temperature: number): Promise<void> => {
     await fetchApi<any>("/advisories/generate", {
       method: "POST",
@@ -502,5 +506,32 @@ export const api = {
       time: date,
       mae: Number((byDate[date].sumError / byDate[date].count).toFixed(2)),
     }));
+  },
+
+  getSettings: async (): Promise<any> => {
+    return await fetchApi<any>("/settings");
+  },
+
+  updateSettings: async (settings: any): Promise<any> => {
+    return await fetchApi<any>("/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
+  },
+
+  ingestWeather: async (mode: "current" | "recent" = "current"): Promise<any> => {
+    return await fetchApi<any>(`/weather/ingest?mode=${mode}`, { method: "POST" });
+  },
+
+  getWeatherStatus: async (): Promise<any> => {
+    return await fetchApi<any>("/weather/status");
+  },
+
+  getMlStatus: async (): Promise<any> => {
+    return await fetchApi<any>("/ml/status");
+  },
+
+  trainMlModel: async (): Promise<any> => {
+    return await fetchApi<any>("/ml/train", { method: "POST" });
   },
 };

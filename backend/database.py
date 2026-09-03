@@ -31,6 +31,23 @@ def get_db():
         db.close()
 
 
+from sqlalchemy import text
+
+
 def init_db():
-    """Create all tables."""
+    """Create all tables and apply safe non-breaking schema migrations."""
     Base.metadata.create_all(bind=engine)
+
+    migration_statements = [
+        "ALTER TABLE observations ADD COLUMN IF NOT EXISTS data_source VARCHAR(30) DEFAULT 'SYNTHETIC'",
+        "ALTER TABLE advisories ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP",
+        "ALTER TABLE advisories ADD COLUMN IF NOT EXISTS rejected_by VARCHAR(100)",
+        "ALTER TABLE advisories ADD COLUMN IF NOT EXISTS generated_by VARCHAR(30) DEFAULT 'TEMPLATE'",
+    ]
+    with engine.connect() as conn:
+        for stmt in migration_statements:
+            try:
+                conn.execute(text(stmt))
+                conn.commit()
+            except Exception:
+                pass

@@ -149,27 +149,47 @@ def generate_advisory_content(
     severity: str,
     temperature: float,
     audience: str,
+    normal_temp: float = 35.0,
 ) -> dict:
     """
     Generate advisory content for a specific audience.
-    
-    This function can be replaced with an LLM-based generator later
-    by keeping the same interface:
-        Input: region, severity, temperature, audience
-        Output: dict with title and content
-    
-    Args:
-        region_name: Name of the affected region
-        severity: HEATWAVE or SEVERE_HEATWAVE
-        temperature: Predicted temperature
-        audience: Target audience (CITIZENS, FARMERS, AUTHORITIES, HEALTHCARE)
+    Attempts Groq LLM generation first with verified context only.
+    Falls back to deterministic templates if Groq is unavailable,
+    unconfigured, or fails guardrail validation.
     
     Returns:
-        dict with 'title' and 'content' keys
+        dict with 'title', 'content', and 'generated_by'
     """
+    from services.llm_service import generate_advisory_llm, validate_advisory
+
     severity_key = severity.upper()
     audience_key = audience.upper()
+    departure = round(temperature - normal_temp, 1)
 
+    # 1. Attempt Groq LLM generation
+    llm_context = {
+        "region": region_name,
+        "forecast_temperature": temperature,
+        "normal_temperature": normal_temp,
+        "departure": departure,
+        "severity": severity_key,
+        "audience": audience_key,
+    }
+
+    llm_result = generate_advisory_llm(llm_context)
+    if llm_result:
+        val_error = validate_advisory(llm_result, llm_context)
+        if not val_error:
+            # Format human-readable text compatible with existing frontend UI
+            actions_text = "\n".join(f"• {a}" for a in llm_result.get("actions", []))
+            formatted_content = f"{llm_result['summary']}\n\nKey Actions:\n{actions_text}"
+            return {
+                "title": llm_result["title"],
+                "content": formatted_content,
+                "generated_by": "GROQ_LLM",
+            }
+
+    # 2. Deterministic Template Fallback
     templates = ADVISORY_TEMPLATES.get(severity_key, ADVISORY_TEMPLATES.get("HEATWAVE", {}))
     template = templates.get(audience_key, templates.get("CITIZENS", {
         "title": "Heatwave Advisory – {region}",
@@ -179,6 +199,7 @@ def generate_advisory_content(
     return {
         "title": template["title"].format(region=region_name, temp=temperature),
         "content": template["content"].format(region=region_name, temp=temperature),
+        "generated_by": "TEMPLATE",
     }
 
 
@@ -186,11 +207,11 @@ def generate_all_advisories(
     region_name: str,
     severity: str,
     temperature: float,
+    normal_temp: float = 35.0,
 ) -> List[dict]:
     """
     Generate advisories for all audience types.
-    
-    Returns a list of dicts, each with: audience, title, content
+    Returns a list of dicts, each with: audience, severity, region_name, title, content, generated_by
     """
     if severity == "NORMAL":
         return []
@@ -199,7 +220,7 @@ def generate_all_advisories(
     advisories = []
 
     for audience in audiences:
-        advisory = generate_advisory_content(region_name, severity, temperature, audience)
+        advisory = generate_advisory_content(region_name, severity, temperature, audience, normal_temp=normal_temp)
         advisory["audience"] = audience
         advisory["severity"] = severity
         advisory["region_name"] = region_name

@@ -64,7 +64,7 @@ export default function Stations() {
       ) : (
         <StatStrip
           stats={[
-            { label: "Total Stations", value: String(counts.total), hint: "AWS network", icon: <Radio className="h-4 w-4" /> },
+            { label: "Total Stations", value: String(counts.total), hint: "Station network", icon: <Radio className="h-4 w-4" /> },
             { label: "Online", value: String(counts.online), hint: `${Math.round((counts.online / counts.total) * 100)}% uptime`, tone: "text-[#34d399]" },
             { label: "Warning", value: String(counts.warning), hint: "Degraded signal", tone: "text-[#fbbf24]" },
             { label: "Offline", value: String(counts.offline), hint: "No recent data", tone: "text-[#f43f5e]", icon: <WifiOff className="h-4 w-4" /> },

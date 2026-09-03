@@ -175,6 +175,9 @@ class AdvisoryResponse(BaseModel):
     created_at: datetime
     approved_at: Optional[datetime] = None
     approved_by: Optional[str] = None
+    rejected_at: Optional[datetime] = None
+    rejected_by: Optional[str] = None
+    generated_by: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -222,3 +225,52 @@ class AuditLogResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ─── Weather Ingestion & ML ───────────────────────────────────────────────────
+
+class WeatherIngestResponse(BaseModel):
+    source: str
+    mode: str
+    regions_processed: int
+    observations_inserted: int
+    observations_skipped: int
+    errors: List[str] = []
+    ingested_at: str
+
+
+class MLTrainResponse(BaseModel):
+    training_mode: str
+    records_used: int
+    regions_used: int
+    model: str
+    train_r2: float
+    test_r2: float
+    mae: Optional[float] = None
+    trained_at: str
+    note: Optional[str] = None
+
+
+# ─── User Settings ───────────────────────────────────────────────────────────
+
+class UserSettingsResponse(BaseModel):
+    temp_unit: str = "celsius"
+    notifications_enabled: bool = True
+    auto_refresh: bool = True
+    alert_threshold: str = "HEATWAVE"
+    digest_email: bool = False
+    approval_required: bool = True
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class UserSettingsUpdate(BaseModel):
+    temp_unit: Optional[str] = None
+    notifications_enabled: Optional[bool] = None
+    auto_refresh: Optional[bool] = None
+    alert_threshold: Optional[str] = None
+    digest_email: Optional[bool] = None
+    approval_required: Optional[bool] = None
+

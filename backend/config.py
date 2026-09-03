@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     FRONTEND_URL: str = "http://localhost:5173"
     POSTGRES_URL: str | None = None
+    GROQ_API_KEY: str | None = None
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     @field_validator("DATABASE_URL", "FRONTEND_URL", mode="before")
     def strip_whitespace(cls, v):
@@ -21,7 +23,8 @@ class Settings(BaseSettings):
         return v
 
     class Config:
-        env_file = ".env"
+        import os
+        env_file = os.path.join(os.path.dirname(__file__), ".env")
 
 
 @lru_cache()

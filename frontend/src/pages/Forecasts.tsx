@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BrainCircuit, Gauge, ThermometerSun, TrendingUp } from "lucide-react";
+import { BrainCircuit, Gauge, RefreshCw, ThermometerSun, TrendingUp } from "lucide-react";
+import Button from "../components/ui/Button";
 import { api } from "../services/api";
 import { useAsync } from "../hooks/useAsync";
 import Panel, { PanelHeader } from "../components/ui/Panel";
@@ -60,9 +61,20 @@ export default function Forecasts() {
         <Select value={region} options={regionOpts} onChange={setRegion} label="Region" className="w-44" />
         <Select value={period} options={periodOpts} onChange={setPeriod} label="Period" className="w-40" />
         <Select value={model} options={modelOpts} onChange={setModel} label="Model" className="w-48" />
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-teal/20 bg-teal/[0.06] px-3 py-1.5 text-xs font-medium text-teal">
-          <BrainCircuit className="h-3.5 w-3.5" /> AI forecast · updated 2 min ago
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={handleGenerate}
+            disabled={isGenerating}
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", isGenerating && "animate-spin")} />
+            {isGenerating ? "Generating..." : "Generate Forecast"}
+          </Button>
+          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-teal/20 bg-teal/[0.06] px-3 py-1.5 text-xs font-medium text-teal">
+            <BrainCircuit className="h-3.5 w-3.5" /> AI forecast
+          </span>
+        </div>
       </div>
 
       {summary.loading ? (

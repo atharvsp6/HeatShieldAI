@@ -1,0 +1,11 @@
+{
+  "training_mode": "synthetic_demo",
+  "records_used": 2000,
+  "regions_used": 8,
+  "model": "RandomForestRegressor",
+  "train_r2": 0.9845,
+  "test_r2": 0.9058,
+  "mae": 1.98,
+  "trained_at": "2026-09-03T15:03:51.260644",
+  "note": "Insufficient real historical observations (found 16 records across 8 regions; required at least 40 across >=2 regions). Trained in explicit demo/synthetic mode."
+}

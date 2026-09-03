@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, Gauge, Globe, Palette, ShieldCheck } from "lucide-react";
 import Panel, { PanelHeader } from "../components/ui/Panel";
 import { cn } from "../utils/cn";
+import { api } from "../services/api";
 
 function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
@@ -17,14 +18,44 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 }
 
 const options = [
-  { icon: Bell, title: "Critical alert push", desc: "Immediate notification when a region reaches SEVERE", key: "push" },
-  { icon: Gauge, title: "Auto-refresh dashboard", desc: "Poll observations every 60 seconds", key: "refresh" },
-  { icon: Globe, title: "Regional forecast digest", desc: "Daily 06:00 IST summary email", key: "digest" },
-  { icon: ShieldCheck, title: "Advisory approval required", desc: "Route AI advisories through human review", key: "approval" },
+  { icon: Bell, title: "Critical alert push", desc: "Immediate notification when a region reaches SEVERE", key: "notifications_enabled" },
+  { icon: Gauge, title: "Auto-refresh dashboard", desc: "Poll observations every 60 seconds", key: "auto_refresh" },
+  { icon: Globe, title: "Regional forecast digest", desc: "Daily 06:00 IST summary email", key: "digest_email" },
+  { icon: ShieldCheck, title: "Advisory approval required", desc: "Route AI advisories through human review", key: "approval_required" },
 ];
 
 export default function Settings() {
-  const [state, setState] = useState<Record<string, boolean>>({ push: true, refresh: true, digest: false, approval: true });
+  const [state, setState] = useState<Record<string, boolean>>({
+    notifications_enabled: true,
+    auto_refresh: true,
+    digest_email: false,
+    approval_required: true,
+  });
+
+  useEffect(() => {
+    api.getSettings()
+      .then((s) => {
+        if (s) {
+          setState({
+            notifications_enabled: s.notifications_enabled ?? true,
+            auto_refresh: s.auto_refresh ?? true,
+            digest_email: s.digest_email ?? false,
+            approval_required: s.approval_required ?? true,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggle = async (key: string) => {
+    const nextVal = !state[key];
+    setState((s) => ({ ...s, [key]: nextVal }));
+    try {
+      await api.updateSettings({ [key]: nextVal });
+    } catch (e) {
+      console.error("Failed to persist setting:", e);
+    }
+  };
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -42,7 +73,7 @@ export default function Settings() {
                   <p className="text-xs text-ink-faint">{o.desc}</p>
                 </div>
               </div>
-              <Toggle on={!!state[o.key]} onClick={() => setState((s) => ({ ...s, [o.key]: !s[o.key] }))} />
+              <Toggle on={!!state[o.key]} onClick={() => handleToggle(o.key)} />
             </div>
           ))}
         </div>
