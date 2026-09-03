@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     POSTGRES_URL: str | None = None
     GROQ_API_KEY: str | None = None
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
 
     @field_validator("DATABASE_URL", "FRONTEND_URL", mode="before")
     def strip_whitespace(cls, v):
