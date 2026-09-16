@@ -4,8 +4,14 @@ HeatShield AI - Main Application Entry Point
 AI-powered Heatwave Intelligence and Early Warning Platform
 """
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+import traceback
+
 from config import get_settings
 from database import init_db, SessionLocal, engine
 from routes.auth import router as auth_router
@@ -16,13 +22,27 @@ from seed import seed_database
 
 settings = get_settings()
 
-from fastapi.responses import JSONResponse
-import traceback
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database and seed data on startup."""
+    print(f"[*] Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    init_db()
+    db = SessionLocal()
+    try:
+        seed_database(db)
+    finally:
+        db.close()
+    print("[OK] Application ready!")
+    yield
+    # Shutdown logic goes here if needed
+
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="AI-powered Heatwave Intelligence and Early Warning Platform",
+    lifespan=lifespan,
 )
 
 
@@ -35,7 +55,8 @@ async def global_exception_handler(request, exc):
     )
 
 
-# CORS
+# ── CORS ─────────────────────────────────────────────────────────────────────
+
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -60,28 +81,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers
+# ── Routers ───────────────────────────────────────────────────────────────────
+
 app.include_router(auth_router)
 app.include_router(regions_router)
 app.include_router(stations_router)
 app.include_router(core_router)
 
 
-@app.on_event("startup")
-def startup_event():
-    """Initialize database and seed data on startup."""
-    print(f"[*] Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    init_db()
-    db = SessionLocal()
-    try:
-        seed_database(db)
-    finally:
-        db.close()
-    print("[OK] Application ready!")
-
-
-from sqlalchemy import text
-
+# ── Health check ──────────────────────────────────────────────────────────────
 
 @app.get("/health")
 @app.get("/api/health")
@@ -105,4 +113,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)

@@ -12,7 +12,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Role, User } from "../types";
-import { regions } from "../data/mock/regions";
 import { severityMeta } from "../utils/severity";
 import Button from "../components/ui/Button";
 import { api } from "../services/api";

@@ -8,14 +8,6 @@
  *
  * e.g.  export const getDashboardKpis = () => http.get<Kpi[]>("/dashboard/kpis")
  */
-import { activity, kpis, tempSeries } from "../data/mock/dashboard";
-import { regions } from "../data/mock/regions";
-import { alerts } from "../data/mock/alerts";
-import { stations } from "../data/mock/stations";
-import { forecastRows, forecastSeries, forecastSummary } from "../data/mock/forecasts";
-import { heatEvents } from "../data/mock/heatwaves";
-import { advisories } from "../data/mock/advisories";
-import { errorTrend, scatterData, validationMetrics, validationRows } from "../data/mock/validation";
 import type { Alert, Station, ActivityItem, Kpi, TempPoint, Region, AlertLevel, AlertStatus } from "../types";
 
 const LATENCY = 450;

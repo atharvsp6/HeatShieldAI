@@ -2,7 +2,7 @@
 Region API routes.
 """
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
@@ -24,6 +24,5 @@ def get_region(region_id: int, db: Session = Depends(get_db)):
     """Get a specific region by ID."""
     region = db.query(Region).filter(Region.id == region_id).first()
     if not region:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Region not found")
     return RegionResponse.model_validate(region)
