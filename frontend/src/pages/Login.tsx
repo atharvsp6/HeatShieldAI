@@ -165,6 +165,12 @@ function ParticleField() {
 
 function MapMotif() {
   const [scanY, setScanY] = useState(0);
+  const [regions, setRegions] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.getRegions().then(setRegions).catch(() => {});
+  }, []);
+
   useEffect(() => {
     let frame: number;
     let y = 0;
