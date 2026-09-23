@@ -1,0 +1,6 @@
+test_id,feature,category,username,password,search_query,audience,action,setting_key,expected_behavior
+DDT_INV_001,authentication,invalid,admin,wrong_password_999,,,,,LOGIN_FAILURE_ERROR_MESSAGE
+DDT_INV_002,authentication,invalid,non_existent_scientist,password123,,,,,LOGIN_FAILURE_ERROR_MESSAGE
+DDT_INV_003,authentication,invalid,guest_user,invalid_format_password,,,,,LOGIN_FAILURE_ERROR_MESSAGE
+DDT_INV_004,station_search,invalid,,,AtlantisUnderwaterCity,,,,EMPTY_STATE_DISPLAYED
+DDT_INV_005,station_search,invalid,,,XYZ_999_FAKE_STATION,,,,EMPTY_STATE_DISPLAYED
