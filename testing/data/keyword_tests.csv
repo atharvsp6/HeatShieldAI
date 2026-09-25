@@ -1,0 +1,25 @@
+test_id,step_no,keyword,test_data,description
+KTC001,1,OPEN_APP,,Open HeatShield AI web application
+KTC001,2,ENTER_USERNAME,admin,Enter valid administrator username
+KTC001,3,ENTER_PASSWORD,admin123,Enter valid administrator password
+KTC001,4,CLICK_SUBMIT_LOGIN,,Click Sign In button
+KTC001,5,VERIFY_LOGIN_SUCCESS,ADMIN,Verify logged in and sidebar displays ADMIN
+KTC001,6,LOGOUT,,Log out of session
+KTC002,1,OPEN_APP,,Open HeatShield AI login page
+KTC002,2,ENTER_USERNAME,admin,Enter valid username
+KTC002,3,ENTER_PASSWORD,wrongpass99,Enter incorrect password
+KTC002,4,CLICK_SUBMIT_LOGIN,,Click Sign In button
+KTC002,5,VERIFY_LOGIN_ERROR,Invalid username or password,Verify error message banner appears
+KTC003,1,OPEN_APP,,Open application
+KTC003,2,SELECT_DEMO_ROLE,ADMIN,Log in via ADMIN demo button
+KTC003,3,NAVIGATE_TO,Weather Stations,Navigate to Weather Stations page
+KTC003,4,SEARCH_STATIONS,Delhi,Search stations in Delhi
+KTC003,5,VERIFY_STATION_RESULTS,MATCH,Verify Delhi stations displayed in table
+KTC003,6,SEARCH_STATIONS,NonExistentLocationXYZ,Search for non-existent station
+KTC003,7,VERIFY_STATION_RESULTS,EMPTY,Verify empty state message displayed
+KTC004,1,OPEN_APP,,Open application
+KTC004,2,SELECT_DEMO_ROLE,METEOROLOGIST,Log in via METEOROLOGIST demo button
+KTC004,3,NAVIGATE_TO,Advisories,Navigate to Advisories page
+KTC004,4,SELECT_AUDIENCE_TAB,CITIZENS,Select Citizens audience tab
+KTC004,5,APPROVE_ADVISORY,,Approve pending advisory card
+KTC004,6,LOGOUT,,Log out of session

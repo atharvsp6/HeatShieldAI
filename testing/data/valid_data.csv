@@ -1,0 +1,11 @@
+test_id,feature,category,username,password,search_query,audience,action,setting_key,expected_behavior
+DDT_VAL_001,authentication,valid,admin,admin123,,,,,LOGIN_SUCCESS
+DDT_VAL_002,authentication,valid,meteorologist,met123,,,,,LOGIN_SUCCESS
+DDT_VAL_003,authentication,valid,authority,auth123,,,,,LOGIN_SUCCESS
+DDT_VAL_004,authentication,valid,citizen,citizen123,,,,,LOGIN_SUCCESS
+DDT_VAL_005,station_search,valid,,,Delhi,,,,MATCH_FOUND
+DDT_VAL_006,station_search,valid,,,Jaipur,,,,MATCH_FOUND
+DDT_VAL_007,station_search,valid,,,Pune,,,,MATCH_FOUND
+DDT_VAL_008,advisory_review,valid,,,,CITIZENS,APPROVE,,STATUS_APPROVED
+DDT_VAL_009,advisory_review,valid,,,,FARMERS,REJECT,,STATUS_REJECTED
+DDT_VAL_010,automation_settings,valid,,,,,,auto_refresh,TOGGLE_SUCCESS
