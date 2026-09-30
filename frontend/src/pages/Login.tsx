@@ -158,7 +158,7 @@ function ParticleField() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
 
 /* ── animated map motif ────────────────────────────────────────── */
@@ -184,7 +184,7 @@ function MapMotif() {
   }, []);
 
   return (
-    <svg viewBox="0 0 100 100" className="w-full drop-shadow-2xl">
+    <svg viewBox="0 0 100 100" className="w-full drop-shadow-2xl" role="img" aria-label="India regional heatwave map visualization">
       <defs>
         <radialGradient id="motifLand" cx="45%" cy="35%" r="75%">
           <stop offset="0%" stopColor="#1a2d4a" />
@@ -342,7 +342,7 @@ export default function Login({ onLogin }: { onLogin: (u: User) => void }) {
   }
 
   return (
-    <div className="relative grid min-h-screen w-full grid-cols-1 overflow-hidden bg-abyss lg:grid-cols-[55fr_45fr]">
+    <main className="relative grid min-h-screen w-full grid-cols-1 overflow-hidden bg-abyss lg:grid-cols-[55fr_45fr]" role="main">
 
       {/* ─── Aurora background glow ─── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -404,7 +404,7 @@ export default function Login({ onLogin }: { onLogin: (u: User) => void }) {
                 </span>
                 AI-powered heat intelligence
               </p>
-              <h2 className="mx-auto max-w-lg text-[24px] font-semibold leading-snug tracking-tight text-ink xl:text-[28px]">
+              <h2 className="mx-auto max-w-lg text-[24px] font-semibold leading-snug tracking-tight text-ink xl:text-[28px]" aria-label="Turn weather signals into actionable intelligence before extreme heat becomes a crisis">
                 Turn weather signals into{" "}
                 <span className="bg-gradient-to-r from-teal via-cyan to-teal bg-clip-text text-transparent">
                   actionable intelligence
@@ -574,7 +574,7 @@ export default function Login({ onLogin }: { onLogin: (u: User) => void }) {
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

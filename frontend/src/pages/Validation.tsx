@@ -69,14 +69,14 @@ export default function Validation() {
       <Panel>
         <PanelHeader title="Regional Validation Detail" subtitle="Per-region predicted vs observed error" />
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-sm">
+          <table className="w-full min-w-[560px] text-sm" aria-label="Regional validation detail table">
             <thead>
               <tr className="border-y border-hairline text-left text-[11px] uppercase tracking-wide text-ink-faint">
-                <th className="px-4 py-2.5 font-semibold">Region</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Predicted</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Observed</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Error</th>
-                <th className="px-4 py-2.5 font-semibold">Status</th>
+                <th scope="col" className="px-4 py-2.5 font-semibold">Region</th>
+                <th scope="col" className="px-4 py-2.5 text-right font-semibold">Predicted</th>
+                <th scope="col" className="px-4 py-2.5 text-right font-semibold">Observed</th>
+                <th scope="col" className="px-4 py-2.5 text-right font-semibold">Error</th>
+                <th scope="col" className="px-4 py-2.5 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-hairline/60">

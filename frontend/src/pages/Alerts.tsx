@@ -79,6 +79,7 @@ export default function Alerts() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search alerts…"
+                aria-label="Search alerts"
                 className="h-9 w-48 rounded-lg border border-hairline bg-surface/80 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-teal/50 focus:outline-none"
               />
             </div>

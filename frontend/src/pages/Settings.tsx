@@ -4,12 +4,13 @@ import Panel, { PanelHeader } from "../components/ui/Panel";
 import { cn } from "../utils/cn";
 import { api } from "../services/api";
 
-function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label?: string }) {
   return (
     <button
       onClick={onClick}
       role="switch"
       aria-checked={on}
+      aria-label={label}
       className={cn("relative h-6 w-11 rounded-full transition-colors", on ? "bg-teal" : "bg-elevated")}
     >
       <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform", on ? "translate-x-5" : "translate-x-0.5")} />
@@ -73,7 +74,7 @@ export default function Settings() {
                   <p className="text-xs text-ink-faint">{o.desc}</p>
                 </div>
               </div>
-              <Toggle on={!!state[o.key]} onClick={() => handleToggle(o.key)} />
+              <Toggle on={!!state[o.key]} onClick={() => handleToggle(o.key)} label={o.title} />
             </div>
           ))}
         </div>

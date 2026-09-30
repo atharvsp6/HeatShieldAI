@@ -77,11 +77,12 @@ export default function Header({ nav, user, notifications, onMobileMenu }: Props
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={handleSearchFocus}
           placeholder="Search regions, stations, alerts…"
+          aria-label="Search regions, stations, alerts"
           className="h-9 w-56 rounded-lg border border-hairline bg-surface/80 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint transition-colors focus:border-teal/50 focus:outline-none lg:w-72"
         />
 
         {searchOpen && q && (
-          <div className="absolute left-0 top-12 z-40 w-80 origin-top-left animate-scale-in overflow-hidden rounded-xl border border-hairline-strong bg-[#0b1120] shadow-2xl">
+          <div className="absolute left-0 top-12 z-40 w-80 origin-top-left animate-scale-in overflow-hidden rounded-xl border border-hairline-strong bg-[#0b1120] shadow-2xl" role="listbox" aria-label="Search results">
             <div className="border-b border-hairline px-3 py-2 text-[11px] font-medium text-ink-faint">
               {totalMatches} {totalMatches === 1 ? "result" : "results"} for "{searchQuery}"
             </div>
@@ -157,7 +158,7 @@ export default function Header({ nav, user, notifications, onMobileMenu }: Props
         </button>
 
         {open && (
-          <div className="absolute right-0 top-12 z-40 w-[340px] origin-top-right animate-scale-in overflow-hidden rounded-xl border border-hairline-strong bg-[#0b1120] shadow-2xl">
+          <div className="absolute right-0 top-12 z-40 w-[340px] origin-top-right animate-scale-in overflow-hidden rounded-xl border border-hairline-strong bg-[#0b1120] shadow-2xl" role="region" aria-label="Notifications panel">
             <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
               <p className="text-sm font-semibold text-ink">Notifications</p>
               <button onClick={() => setOpen(false)} className="rounded p-1 text-ink-faint hover:text-ink">

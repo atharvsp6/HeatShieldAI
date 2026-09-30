@@ -105,7 +105,7 @@ export default function Forecasts() {
       <Panel>
         <PanelHeader title="Forecast Detail" subtitle="Predicted vs observed with error breakdown" />
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
+          <table className="w-full min-w-[640px] text-sm" aria-label="Forecast details table">
             <thead>
               <tr className="border-y border-hairline text-left text-[11px] uppercase tracking-wide text-ink-faint">
                 <Th>Date</Th>
@@ -156,5 +156,5 @@ export default function Forecasts() {
 }
 
 function Th({ children, right }: { children: React.ReactNode; right?: boolean }) {
-  return <th className={cn("px-4 py-2.5 font-semibold", right && "text-right")}>{children}</th>;
+  return <th scope="col" className={cn("px-4 py-2.5 font-semibold", right && "text-right")}>{children}</th>;
 }

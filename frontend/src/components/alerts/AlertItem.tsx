@@ -16,6 +16,8 @@ export default function AlertItem({ alert, compact }: { alert: Alert; compact?: 
 
   return (
     <div
+      role="article"
+      aria-label={`${m.label} alert for ${alert.region} at ${alert.temp} degrees`}
       className={cn(
         "group flex gap-3 border-l-2 bg-surface/40 px-4 py-3 transition-colors hover:bg-white/[0.03]",
         resolved ? "border-l-hairline-strong opacity-70" : m.ring,

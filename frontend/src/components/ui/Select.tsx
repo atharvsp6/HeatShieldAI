@@ -27,6 +27,9 @@ export default function Select({ value, options, onChange, label, className }: P
     <div className={cn("relative", className)} ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label ? `${label}: ${current?.label}` : current?.label}
         className="flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-hairline bg-surface/80 px-3 text-sm text-ink transition-colors hover:border-hairline-strong"
       >
         <span className="flex items-center gap-1.5 truncate">
@@ -36,10 +39,12 @@ export default function Select({ value, options, onChange, label, className }: P
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-ink-faint transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="absolute left-0 top-11 z-40 min-w-full origin-top animate-scale-in overflow-hidden rounded-lg border border-hairline-strong bg-[#0b1120] p-1 shadow-2xl">
+        <div className="absolute left-0 top-11 z-40 min-w-full origin-top animate-scale-in overflow-hidden rounded-lg border border-hairline-strong bg-[#0b1120] p-1 shadow-2xl" role="listbox">
           {options.map((o) => (
             <button
               key={o.value}
+              role="option"
+              aria-selected={o.value === value}
               onClick={() => {
                 onChange(o.value);
                 setOpen(false);

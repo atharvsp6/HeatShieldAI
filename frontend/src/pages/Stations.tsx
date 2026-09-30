@@ -80,6 +80,7 @@ export default function Stations() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search stations…"
+              aria-label="Search stations"
               className="h-9 w-full rounded-lg border border-hairline bg-surface/80 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-teal/50 focus:outline-none"
             />
           </div>
@@ -99,16 +100,16 @@ export default function Stations() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-sm">
+          <table className="w-full min-w-[820px] text-sm" aria-label="Weather stations table">
             <thead>
               <tr className="border-b border-hairline text-left text-[11px] uppercase tracking-wide text-ink-faint">
                 <SortTh label="Station" k="code" sort={sort} dir={dir} onSort={toggleSort} />
                 <SortTh label="Region" k="region" sort={sort} dir={dir} onSort={toggleSort} />
                 <SortTh label="Temperature" k="temp" sort={sort} dir={dir} onSort={toggleSort} right />
                 <SortTh label="Humidity" k="humidity" sort={sort} dir={dir} onSort={toggleSort} right />
-                <th className="px-4 py-2.5 font-semibold">Status</th>
-                <th className="px-4 py-2.5 font-semibold">Last Observation</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Signal</th>
+                <th scope="col" className="px-4 py-2.5 font-semibold">Status</th>
+                <th scope="col" className="px-4 py-2.5 font-semibold">Last Observation</th>
+                <th scope="col" className="px-4 py-2.5 text-right font-semibold">Signal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-hairline/60">
@@ -153,7 +154,7 @@ export default function Stations() {
 function SortTh({ label, k, sort, dir, onSort, right }: { label: string; k: SortKey; sort: SortKey; dir: string; onSort: (k: SortKey) => void; right?: boolean }) {
   const active = sort === k;
   return (
-    <th className={cn("px-4 py-2.5 font-semibold", right && "text-right")}>
+    <th scope="col" className={cn("px-4 py-2.5 font-semibold", right && "text-right")}>
       <button onClick={() => onSort(k)} className={cn("inline-flex items-center gap-1 transition-colors hover:text-ink", active && "text-ink", right && "flex-row-reverse")}>
         {label}
         <ArrowUpDown className={cn("h-3 w-3", active ? "text-teal" : "text-ink-faint/50")} />

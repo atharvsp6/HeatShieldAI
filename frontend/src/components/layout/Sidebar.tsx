@@ -59,7 +59,7 @@ export default function Sidebar({ active, onNavigate, collapsed, onToggle, user,
       </div>
 
       {/* nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = icons[item.icon];
